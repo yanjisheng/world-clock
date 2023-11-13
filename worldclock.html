@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="author" value="yanjisheng">
+<title>World Clock Widget - Made by yanjisheng, published under MIT license.</title>
+<style>
+body{
+	margin: 0px;
+}
+.out{
+	position: relative;
+	width: 200px;
+	padding: 10px;
+	margin: 10px;
+	border: 5px solid;
+	border-radius: 10px;
+	text-align: center;
+	font-family: sans-serif;
+	background-color: #ffcccc;
+	border-color: #ff9999;
+	color: #ffffff;
+	font-weight: bold;
+	-webkit-text-stroke: 0.3px #999999;
+	text-shadow: 0px 0px 5px #666666;
+	box-shadow: 0px 0px 10px #666666;
+}
+.line{
+	position: relative;
+	top: 0px;
+	animation-name: appear;
+	animation-duration: 0.5s;
+	animation-fill-mode: both;
+}
+@keyframes appear{
+	from {
+		top: -10px;
+		opacity: 0;
+	}
+	to {
+		top: 0px;
+		opacity: 1;
+	}
+}
+.time{
+	font-size: 50px;
+	animation-delay: 0.2s;
+}
+.date{
+	font-size: 25px;
+	animation-delay: 0.4s;
+}
+.place{
+	font-size: 20px;
+	animation-delay: 0s;
+}
+</style>
+</head>
+<body>
+<div class="out" title="Made by yanjisheng">
+<div id="place" class="place line" title="Made by yanjisheng">City, Country</div>
+<div id="time" class="time line" title="Made by yanjisheng">18:00:00</div>
+<div id="date" class="date line" title="Made by yanjisheng">2023/12/31</div>
+</div>
+<script>
+//Change showLocation to your preferred language. Keep ianaTimezone as original. 
+//Comment unnessesary lines.
+var timezoneList = [
+{showLocation: "Auckland, New Zealand", ianaTimezone: "Pacific/Auckland"}, 
+{showLocation: "Sydney, Australia", ianaTimezone: "Australia/Sydney"}, 
+{showLocation: "Brisbane, Australia", ianaTimezone: "Australia/Brisbane"}, 
+{showLocation: "Adelaide, Australia", ianaTimezone: "Australia/Adelaide"}, 
+{showLocation: "Darwin, Australia", ianaTimezone: "Australia/Darwin"}, 
+{showLocation: "Perth, Australia", ianaTimezone: "Australia/Perth"}, 
+{showLocation: "Tokyo, Japan", ianaTimezone: "Asia/Tokyo"}, 
+{showLocation: "Beijing, China", ianaTimezone: "Asia/Shanghai"}, 
+{showLocation: "Bangkok, Thailand", ianaTimezone: "Asia/Bangkok"}, 
+{showLocation: "Dhaka, Bangladesh", ianaTimezone: "Asia/Dhaka"}, 
+{showLocation: "New Delhi, India", ianaTimezone: "Asia/Kolkata"}, 
+{showLocation: "Karachi, Pakistan", ianaTimezone: "Asia/Karachi"}, 
+{showLocation: "Dubai, UAE", ianaTimezone: "Asia/Dubai"}, 
+{showLocation: "Nairobi, Kenya", ianaTimezone: "Africa/Nairobi"}, 
+{showLocation: "Athens, Greece", ianaTimezone: "Europe/Athens"}, 
+{showLocation: "Cape Town, South Africa", ianaTimezone: "Africa/Johannesburg"}, 
+{showLocation: "Paris, France", ianaTimezone: "Europe/Paris"}, 
+{showLocation: "Lagos, Nigeria", ianaTimezone: "Africa/Lagos"}, 
+{showLocation: "London, United Kingdom", ianaTimezone: "Europe/London"}, 
+{showLocation: "Abidjan, Côte d'Ivoire", ianaTimezone: "Africa/Abidjan"}, 
+{showLocation: "São Paulo, Brazil", ianaTimezone: "America/Sao_Paulo"}, 
+{showLocation: "Santiago, Chile", ianaTimezone: "America/Santiago"}, 
+{showLocation: "Caracas, Venezuela", ianaTimezone: "America/Caracas"}, 
+{showLocation: "Lima, Peru", ianaTimezone: "America/Lima"}, 
+{showLocation: "Mexico City, Mexico", ianaTimezone: "America/Mexico_City"}, 
+{showLocation: "New York, USA", ianaTimezone: "America/New_York"}, 
+{showLocation: "Chicago, USA", ianaTimezone: "America/Chicago"}, 
+{showLocation: "Denver, USA", ianaTimezone: "America/Denver"}, 
+{showLocation: "Los Angeles, USA", ianaTimezone: "America/Los_Angeles"}, 
+{showLocation: "Anchorage, USA", ianaTimezone: "America/Anchorage"}, 
+{showLocation: "Honolulu, USA", ianaTimezone: "Pacific/Honolulu"}, 
+];
+var url = location.href;
+if(url.indexOf("?") < 0){
+location.replace(url+"?0");
+}
+var serialNo = url.substring(url.indexOf("?")+1);
+var index = serialNo % timezoneList.length;
+var place = timezoneList[index].showLocation;
+var timezone = timezoneList[index].ianaTimezone;
+document.getElementById("place").innerText=place;
+function showDateTimePerSecond(){
+let now = new Date();
+//Change hour12 to true to show AM or PM.
+let timeString = now.toLocaleTimeString("en-UK", {timeZone: timezone, hour12: false});
+//Change en-UK to en-US or zh-CN to show a different date format.
+let dateString = now.toLocaleDateString("en-UK", {timeZone: timezone});
+document.getElementById("time").innerText=timeString;
+document.getElementById("date").innerText=dateString;
+}
+showDateTimePerSecond();
+setInterval(showDateTimePerSecond,1000);
+setTimeout(function(){location.replace(url.substring(0,url.indexOf("?")+1)+(index+1))}, 10000);
+</script>
+</body>
+</html>
