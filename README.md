@@ -2,13 +2,13 @@
 
 [中文](chinese.md)
 
-This widget shows time and dates from all over the world. It uses timezone data embedded in web browsers with no extra dependents needed, and can automatically handle daylight saving time (DST).
+This widget shows times and dates from all over the world. It uses timezone data embedded in web browsers with no extra dependents needed, and can automatically handle daylight saving time (DST).
 
 This widget can be very useful for live streamers whose audiences are from all over the world.
 
 ## How to use
 
-Just download the file `worldclock.html`, and add it by OBS - Source - Browser, check "local file", and then choose the downloaded file. The proceduce is the same as any other widgets.
+Just download the file `worldclock.html`, and add it by OBS - Source - Browser, check "local file", and then choose the downloaded file. The procedure is the same as any other widgets.
 
 ## Want to change something?
 
