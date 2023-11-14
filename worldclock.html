@@ -10,7 +10,7 @@ body{
 }
 .out{
 	position: relative;
-	width: 200px;
+	width: 220px;
 	padding: 10px;
 	margin: 10px;
 	border: 5px solid;
@@ -118,6 +118,7 @@ document.getElementById("date").innerText=dateString;
 }
 showDateTimePerSecond();
 setInterval(showDateTimePerSecond,1000);
+//Now each location shows for 10 seconds (10000 ms). Change the number if nessesary.
 setTimeout(function(){location.replace(url.substring(0,url.indexOf("?")+1)+(index+1))}, 10000);
 </script>
 </body>
