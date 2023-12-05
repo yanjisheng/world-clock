@@ -110,9 +110,9 @@ document.getElementById("place").innerText=place;
 function showDateTimePerSecond(){
 let now = new Date();
 //Change hour12 to true to show AM or PM.
-let timeString = now.toLocaleTimeString("en-UK", {timeZone: timezone, hour12: false});
+let timeString = now.toLocaleTimeString("en-GB", {timeZone: timezone, hour12: false});
 //Change en-UK to en-US or zh-CN to show a different date format.
-let dateString = now.toLocaleDateString("en-UK", {timeZone: timezone});
+let dateString = now.toLocaleDateString("en-GB", {timeZone: timezone, year: "numeric", month: "short", day: "2-digit", weekday: "short"});
 document.getElementById("time").innerText=timeString;
 document.getElementById("date").innerText=dateString;
 }
