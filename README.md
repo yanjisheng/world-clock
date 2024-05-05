@@ -1,3 +1,5 @@
+This readme file is outdated.
+
 # World Clock Widget
 
 [中文](chinese.md)
