@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Redirecting...</title>
+<script>
+    var lang = navigator.language;
+    var l = lang.substring(0,2);
+    if(l=="zh"){
+        window.location.href="generator-zh.html";
+    }else if(l=="ja"){
+        window.location.href="generator-ja.html";
+    }else{
+        window.location.href="generator-en.html";
+    }
+</script>
+</head>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>世界時計ジェネレーター</title>
+<link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.14/theme-chalk/index.min.css" rel="stylesheet">
+<script src="https://cdn.bootcdn.net/ajax/libs/vue/2.7.14/vue.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.14/index.min.js"></script>
+<style>
+body{
+    font-family: sans-serif;
+    text-align: center;
+    vertical-align: middle;
+    overflow-y: scroll;
+}
+table thead{
+    height: 30px;
+    background-color: #333333;
+    color: #ffffff;
+}
+table thead a{
+    color: #ffffff;
+}
+tbody tr:hover{
+    background-color: #dadada;
+}
+.el-input__inner{
+    padding: 3px;
+}
+.el-tabs{
+    width: 605px;
+    display: inline-block;
+}
+.el-row{
+    text-align: right;
+    min-height: 45px;
+}
+.el-col>div.el-slider{
+    display: inline-block;
+    width: 100px;
+    padding: 0 12px;
+}
+.el-col-8>div.el-select{
+    width: 100px;
+}
+.el-col-12>div.el-select{
+    width: 150px;
+}
+.el-col-12>div.el-input{
+    width: 150px;
+}
+.el-col>div.el-input-number{
+    width: 120px;
+}
+.el-color-dropdown__link-btn{
+    display: none;
+}
+.el-color-dropdown__btn span::before{
+    content: "OK";
+    font-size: 12px;
+}
+.el-color-dropdown__btn span{
+    font-size: 0px;
+}
+.el-tab-pane p, .el-tab-pane h2{
+    text-align: justify;
+}
+h2{
+    margin: 10px;
+}
+p{
+    margin: 5px;
+}
+#previewBox{
+    display: inline-block;
+    vertical-align: top;
+    width: 560px;
+}
+#saveButton{
+    margin: 15px;
+}
+</style>
+</head>
+<body>
+<div id="vue">
+    <el-tabs value="about">
+        <el-tab-pane label="タイムゾーン一覧表" name="tzlist">
+            <table>
+                <thead>
+                    <td>＃</td>
+                    <td style="min-width:200px"><a href="https://data.iana.org/time-zones/tzdb/zone1970.tab" title="リンクでIANA基準タイムゾーンを選んでください。" target="_blank">IANA基準タイムゾーン</a></td>
+                    <td style="min-width:200px">位置の名前</td>
+                    <td style="min-width:140px">操作</td>
+                </thead>
+                <tbody id="tableContent">
+                    <tr v-for="(t, index) in timezoneList" :key="index">
+                        <td>{{index}}</td>
+                        <td>{{t.ianaTimezone}}</td>
+                        <td>{{t.showLocation}}</td>
+                        <td>
+                            <el-button-group>
+                                <el-button type="warning" icon="el-icon-edit" circle size="mini" title="編集" @click="editMe(index)"></el-button>
+                                <el-button type="success" icon="el-icon-plus" circle size="mini" title="追加" @click="addMe(index)"></el-button>
+                                <el-button type="primary" icon="el-icon-top" circle size="mini" title="上へ移動" @click="moveUp(index)"></el-button>
+                                <el-button type="primary" icon="el-icon-bottom" circle size="mini" title="下へ移動" @click="moveDown(index)"></el-button>
+                                <el-button type="danger" icon="el-icon-delete" circle size="mini" title="削除" @click="deleteMe(index)"></el-button>
+                            </el-button-group>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </el-tab-pane>
+        <el-tab-pane label="他の設定" name="color">
+            <h2>時間と日付の形式</h2>
+            <el-row>
+                <el-col :span="12">時間の形式：
+                    <el-select size="mini" v-model="timeFormat">
+                        <el-option label="23:59:59" value="timeFormat1"></el-option>
+                        <el-option label="23:59" value="timeFormat2"></el-option>
+                        <el-option label="午後11:59:59" value="timeFormat3"></el-option>
+                        <el-option label="午後11:59" value="timeFormat4"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="12">日付の形式：
+                    <el-select size="mini" v-model="dateFormat">
+                        <el-option label="2025年12月31日水曜日" value="dateFormat1"></el-option>
+                        <el-option label="2025年12月31日(水)" value="dateFormat2"></el-option>
+                        <el-option label="2025年12月31日" value="dateFormat3"></el-option>
+                        <el-option label="12月31日(水)" value="dateFormat4"></el-option>
+                        <el-option label="12月31日" value="dateFormat5"></el-option>
+                        <el-option label="2025/12/31(水)" value="dateFormat6"></el-option>
+                        <el-option label="12/31" value="dateFormat7"></el-option>
+                        <el-option label="令和7年12月31日(水)" value="dateFormat8"></el-option>
+                        <el-option label="令和7年12月31日" value="dateFormat9"></el-option>
+                    </el-select>
+                </el-col>
+            </el-row>
+            <h2>大きさ</h2>
+            <el-row>
+                <el-col :span="12">全部の幅：<el-slider size="mini" v-model="totalWidth0" :show-tooltip="false"></el-slider></el-col>
+                <el-col :span="12">位置のフォントサイズ：<el-slider size="mini" v-model="fontSizePlace0" :show-tooltip="false"></el-slider></el-slider></el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="12">時間のフォントサイズ：<el-slider size="mini" v-model="fontSizeTime0" :show-tooltip="false"></el-slider></el-slider></el-col>
+                <el-col :span="12">日付のフォントサイズ：<el-slider size="mini" v-model="fontSizeDate0" :show-tooltip="false"></el-slider></el-slider></el-col>
+            </el-row>
+            <h2>色とフォント</h2>
+            <el-row>
+                <el-col :span="8">背景の色：<el-color-picker size="mini" v-model="backgroundColor" :predefine="predefineColors"></el-color-picker></el-col>
+                <el-col :span="8">輪郭の色：<el-color-picker size="mini" v-model="borderColor" :predefine="predefineColors"></el-color-picker></el-col>
+                <el-col :span="8">フォントの色：<el-color-picker size="mini" v-model="textColor" :predefine="predefineColors"></el-color-picker></el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="12">フォントウェート：
+                    <el-select size="mini" v-model="fontWeight">
+                        <el-option label="Bold" value="bold"></el-option>
+                        <el-option label="Normal" value="normal"></el-option>
+                        <el-option label="Light" value="lighter"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="12">フォント：
+                    <el-input size="mini" v-model="fontType"></el-input>
+                    <el-tooltip content="このフォントをパソコンにインストールしたことを確かめてください。空白を残してもいいです。" placement="top-end">
+                        <el-button icon="el-icon-warning-outline" circle size="mini"></el-button>
+                    </el-tooltip>
+                </el-col>
+            </el-row>
+            <h2>形と行為</h2>
+            <el-row>
+                <el-col :span="8">影：
+                    <el-select size="mini" v-model="shadow">
+                        <el-option label="付けた" value="true"></el-option>
+                        <el-option label="消した" value="false"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="8">丸い角：
+                    <el-select size="mini" v-model="roundCorner">
+                        <el-option label="付けた" value="true"></el-option>
+                        <el-option label="消した" value="false"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="8">動画：
+                    <el-select size="mini" v-model="animation">
+                        <el-option label="付けた" value="true"></el-option>
+                        <el-option label="消した" value="false"></el-option>
+                    </el-select>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="24">位置を切り替える間（秒）： 
+                    <el-input-number size="mini" v-model="switchTime" :min="1" :max="100000"></el-input-number>
+                </el-col>
+            </el-row>
+        </el-tab-pane>
+        <el-tab-pane label="説明" name="about">
+            <h1>世界時計ジェネレーター</h1>
+            <p>このウェブページは世界時計を生成するために使います。世界時計は世界のたくさんの位置の地元の時間を次々と示すことができます。そして、夏時間を自動的に扱うことができます。</p>
+            <p>これは世界有名なインターネットキャスター向きです。</p>
+            <p><a href="generator-en.html">English</a> <a href="generator-zh.html">中文</a></p>
+            <h2>作者の情報</h2>
+            <p>このプロジェクトの作者は顔姫です。</p>
+            <p><a href="https://github.com/yanjisheng/world-clock" target="_blank">Github repository</a> <a href="https://space.bilibili.com/31719231" target="_blank">ビリビリ</a> <a href="https://twitter.com/yanji_channel" target="_blank">Twitter</a></p>
+            <h2>使い方</h2>
+            <p>1. 第一のパネルで、示したいタイムゾーンを選んでください。位置の示したい名前を編集して、示したくないものを削除して、順番を決めて、付け加えてもいいです。<a href="https://data.iana.org/time-zones/tzdb/zone1970.tab" target="_blank">IANA基準タイムゾーン</a>を使わなければなりません。そうしないと、誤りになりました。</p>
+            <p>2. 第二のパネルで、大きさや、色や、フォントや、時間と日付の形式や、他の設定を決めてください。右側で（ブラウザーの幅が狭すぎれば下側で）プレビュー画面を見てください。</p>
+            <p>3. それを全部決めなら、「保存」ボタンをクリックして、書き出した「worldclock.html」ファイルを保存してください。HTMLや、CSSや、Javascriptを理解しれば、複雑な機能を達成するために、このファイルを編集してもいいです。</p>
+            <p>4. やっと、OBS Studioで、「ソース」ー「ブラウザ」を追加して、「ローカルファイル」を選んで、上の書き出したファイルを見つけてください。</p>
+            <h2>許可証</h2>
+            <p>このプロジェクトはMITライセンスで発行されています。</p>
+        </el-tab-pane>
+    </el-tabs>
+    <div id="previewBox">
+        <h2>プレビュー画面</h2>
+        <div :style="previewStyle">
+            <div id="place" :style="locationStyle">{{locationPreview}}</div>
+            <div id="time" :style="timeStyle">{{timeFormatPreview}}</div>
+            <div id="date" :style="dateStyle">{{dateFormatPreview}}</div>
+        </div>
+        <el-button id="saveButton" @click="exportFile()">保存</el-button>
+    </div>
+</div>
+<script>
+function editLine(option, text1, text2){
+    return '<tr><td></td><td><div class="el-input el-input--mini">'
+            +'<input class="el-input__inner" value="'+text1+'" type="text" autocomplete="off" id="input1"></div></td>'
+            +'<td><div class="el-input el-input--mini">'
+            +'<input class="el-input__inner" value="'+text2+'" type="text" autocomplete="off" id="input2"></div></td>'
+            +'<td><div class="el-button-group">'
+            +'<button class="el-button el-button--success el-button--mini is-circle" type="button" title="OK" onclick="vue.'+option+'Done()"><i class="el-icon-check"></i></button>'
+            +'<button class="el-button el-button--danger el-button--mini is-circle" type="button" title="キャンセル" onclick="vue.'+option+'Cancel()"><i class="el-icon-close"></i></button></div></td></tr>';
+}
+function tableLine(rowNo, text1, text2){
+    return '<td>'+rowNo+'</td><td>'+text1+'</td><td>'+text2+'</td><td><div class="el-button-group">'
+            +'<button class="el-button el-button--warning el-button--mini is-circle" type="button" title="編集" onclick="vue.editMe('+rowNo+')"><i class="el-icon-edit"></i></button>'
+            +'<button class="el-button el-button--success el-button--mini is-circle" type="button" title="追加" onclick="vue.addMe('+rowNo+')"><i class="el-icon-plus"></i></button>'
+            +'<button class="el-button el-button--primary el-button--mini is-circle" type="button" title="上へ移動" onclick="vue.moveUp('+rowNo+')"><i class="el-icon-top"></i></button>'
+            +'<button class="el-button el-button--primary el-button--mini is-circle" type="button" title="下へ移動" onclick="vue.moveDown('+rowNo+')"><i class="el-icon-bottom"></i></button>'
+            +'<button class="el-button el-button--danger el-button--mini is-circle" type="button" title="削除" onclick="vue.deleteMe('+rowNo+')"><i class="el-icon-delete"></i></button></div></td>';
+}
+var vue = new Vue({
+    el: "#vue",
+    data: {
+        editingRowNo: -1,
+        editedRowNos: [],
+        predefineColors: ["#ffffff", "#ff7777", "#ff0000", "#770000", "#ffbb77", "#ff7700", "#773300", "#ffff77", "#ffff00", "#777700", "#77ff77", "#00ff00", "#007700", 
+                "#77ffff", "#00ffff", "#007777", "#7777ff", "#0000ff", "#000077", "#ff77ff", "#ff00ff", "#770077", "#bbbbbb", "#777777", "#333333", "#000000"],
+        shadowOptions:[],
+
+        timezoneList: [
+            {showLocation: "オーストラリア・シドニー", ianaTimezone: "Australia/Sydney"}, 
+            {showLocation: "日本・東京", ianaTimezone: "Asia/Tokyo"}, 
+            {showLocation: "中国・北京", ianaTimezone: "Asia/Shanghai"}, 
+            {showLocation: "タイ・バンコク", ianaTimezone: "Asia/Bangkok"}, 
+            {showLocation: "インド・ニューデリー", ianaTimezone: "Asia/Kolkata"}, 
+            {showLocation: "アラブ首長国連邦・ドバイ", ianaTimezone: "Asia/Dubai"}, 
+            {showLocation: "ギリシア・アテネ", ianaTimezone: "Europe/Athens"}, 
+            {showLocation: "フランス・パリ", ianaTimezone: "Europe/Paris"}, 
+            {showLocation: "イギリス・ロンドン", ianaTimezone: "Europe/London"}, 
+            {showLocation: "ブラジル・サンパウロ", ianaTimezone: "America/Sao_Paulo"}, 
+            {showLocation: "アメリカ・ニューヨーク", ianaTimezone: "America/New_York"}, 
+            {showLocation: "アメリカ・シカゴ", ianaTimezone: "America/Chicago"}, 
+            {showLocation: "アメリカ・ロサンゼルス", ianaTimezone: "America/Los_Angeles"}, 
+        ],
+        backgroundColor: "#ffcccc",
+        borderColor: "#ff9999",
+        textColor: "#ffffff",
+        totalWidth: 250,
+        fontSizePlace: 20,
+        fontSizeTime: 50,
+        fontSizeDate: 24,
+        shadow: "true",
+        roundCorner: "true",
+        fontWeight: "bold",
+        fontType: "",
+        animation: "true",
+        dateFormat: "dateFormat2",
+        timeFormat: "timeFormat1",
+        switchTime: 10,
+    },
+    computed: {
+        totalWidth0: {
+            get: function (){
+                return (this.totalWidth - 5) / 5;
+            },
+            set: function (v){
+                this.totalWidth = v * 5 + 5;
+            }
+        },
+        fontSizePlace0: {
+            get: function (){
+                return this.fontSizePlace - 5;
+            },
+            set: function (v){
+                this.fontSizePlace = v + 5;
+            }
+        },
+        fontSizeTime0: {
+            get: function (){
+                return this.fontSizeTime - 5;
+            },
+            set: function (v){
+                this.fontSizeTime = v + 5;
+            }
+        },
+        fontSizeDate0: {
+            get: function (){
+                return this.fontSizeDate - 5;
+            },
+            set: function (v){
+                this.fontSizeDate = v + 5;
+            }
+        },
+        locationPreview: function() {
+            let t = this.timezoneList;
+            return t[0].showLocation;
+        },
+        timeFormatPreview: function() {
+            if(this.timeFormat == "timeFormat1"){
+                return "23:59:59";
+            }else if(this.timeFormat == "timeFormat2"){
+                return "23:59";
+            }else if(this.timeFormat == "timeFormat3"){
+                return "午後11:59:59";
+            }else if(this.timeFormat == "timeFormat4"){
+                return "午後11:59";
+            }
+            return "";
+        },
+        dateFormatPreview: function() {
+            if(this.dateFormat == "dateFormat1"){
+                return "2025年12月31日水曜日";
+            }else if(this.dateFormat == "dateFormat2"){
+                return "2025年12月31日(水)";
+            }else if(this.dateFormat == "dateFormat3"){
+                return "2025年12月31日";
+            }else if(this.dateFormat == "dateFormat4"){
+                return "12月31日(水)";
+            }else if(this.dateFormat == "dateFormat5"){
+                return "12月31日";
+            }else if(this.dateFormat == "dateFormat6"){
+                return "2025/12/31(水)";
+            }else if(this.dateFormat == "dateFormat7"){
+                return "12/31";
+            }else if(this.dateFormat == "dateFormat8"){
+                return "令和7年12月31日(水)";
+            }else if(this.dateFormat == "dateFormat9"){
+                return "令和7年12月31日";
+            }
+            return "";
+        },
+        previewStyle: function() {
+            return "position: relative; width: "+this.totalWidth+"px; padding: 10px; margin: 10px; border: 5px solid; "+(this.roundCorner=="true"?"border-radius: 20px; ":"")
+                    +"text-align: center; font-family: "+(this.fontType==""?"":(this.fontType+","))+"sans-serif; "
+                    +"background-color: "+this.backgroundColor+"; border-color: "+this.borderColor+"; color: "+this.textColor+
+                    "; font-weight: "+this.fontWeight+"; "+(this.shadow=="true"?"-webkit-text-stroke: 0.3px #999999; text-shadow: 0px 0px 5px #666666; box-shadow: 0px 0px 10px #666666;":"")
+        },
+        locationStyle: function() {
+            return "font-size: "+ this.fontSizePlace + "px";
+        },
+        timeStyle: function() {
+            return "font-size: "+ this.fontSizeTime + "px";
+        },
+        dateStyle: function() {
+            return "font-size: "+ this.fontSizeDate + "px";
+        },
+    },
+    methods: {
+        showEditingMessage: function(){
+            vue.$message({type:"error", message:"他の操作する前に、今の編集を完成してください。"});
+        },
+        showEmptyMessage: function(){
+            vue.$message({type:"warning", message:"空白の入力は無効です。"});
+        },
+        myForceUpdate: function(){
+            vue.$forceUpdate();
+            for(let i=0; i<vue.editedRowNos.length; i++){
+                let t=vue.editedRowNos[i];
+                document.getElementById("tableContent").children[t].innerHTML
+                        =tableLine(t,vue.timezoneList[t].ianaTimezone,vue.timezoneList[t].showLocation);
+            }
+        },
+        moveUp: function(rowNo){
+            if(vue.editingRowNo != -1){
+                vue.showEditingMessage();
+                return;
+            }
+            if(rowNo>0){
+                let t1 = vue.timezoneList[rowNo].ianaTimezone;
+                let t2 = vue.timezoneList[rowNo].showLocation;
+                vue.timezoneList[rowNo].ianaTimezone = vue.timezoneList[rowNo-1].ianaTimezone;
+                vue.timezoneList[rowNo].showLocation = vue.timezoneList[rowNo-1].showLocation;
+                vue.timezoneList[rowNo-1].ianaTimezone = t1;
+                vue.timezoneList[rowNo-1].showLocation = t2;
+            }
+            vue.myForceUpdate();
+        },
+        moveDown: function(rowNo){
+            if(vue.editingRowNo != -1){
+                vue.showEditingMessage();
+                return;
+            }
+            if(rowNo<vue.timezoneList.length-1){
+                let t1 = vue.timezoneList[rowNo].ianaTimezone;
+                let t2 = vue.timezoneList[rowNo].showLocation;
+                vue.timezoneList[rowNo].ianaTimezone = vue.timezoneList[rowNo+1].ianaTimezone;
+                vue.timezoneList[rowNo].showLocation = vue.timezoneList[rowNo+1].showLocation;
+                vue.timezoneList[rowNo+1].ianaTimezone = t1;
+                vue.timezoneList[rowNo+1].showLocation = t2;
+            }
+            vue.myForceUpdate();
+        },
+        deleteMe: function(rowNo){
+            if(vue.editingRowNo != -1){
+                vue.showEditingMessage();
+                return;
+            }
+            for(let i=rowNo; i<vue.timezoneList.length; i++){
+                vue.timezoneList[i]= vue.timezoneList[i+1];
+            }
+            vue.timezoneList.pop();
+            vue.myForceUpdate();
+        },
+        editMe: function(rowNo){
+            if(vue.editingRowNo != -1){
+                vue.showEditingMessage();
+                return;
+            }
+            document.getElementById("tableContent").children[rowNo].insertAdjacentHTML("afterend", 
+                    editLine("edit",vue.timezoneList[rowNo].ianaTimezone,vue.timezoneList[rowNo].showLocation));
+            document.getElementById("tableContent").children[rowNo].remove();
+            vue.editingRowNo = rowNo;
+        },
+        addMe: function(rowNo){
+            if(vue.editingRowNo != -1){
+                vue.showEditingMessage();
+                return;
+            }
+            document.getElementById("tableContent").children[rowNo].insertAdjacentHTML("afterend", editLine("add","",""));
+            vue.editingRowNo = rowNo + 1;
+        },
+        addDone: function(){
+            if(vue.isInputEmpty()){
+                vue.addCancel();
+                return;
+            }
+            vue.timezoneList.push({showLocation: "", ianaTimezone: ""});
+            for(let i=vue.timezoneList.length-1; i>vue.editingRowNo;i--){
+                vue.timezoneList[i] = vue.timezoneList[i-1];
+            }
+            vue.timezoneList[vue.editingRowNo] = {ianaTimezone: document.getElementById("input1").value, showLocation: document.getElementById("input2").value};
+            vue.addCancel();
+        },
+        addCancel: function(){
+            document.getElementById("tableContent").children[vue.editingRowNo].remove();
+            vue.myForceUpdate();
+            vue.editingRowNo = -1;
+        },
+        editDone: function(){
+            if(vue.isInputEmpty()){
+                vue.editCancel();
+                return;
+            }
+            vue.timezoneList[vue.editingRowNo].ianaTimezone = document.getElementById("input1").value;
+            vue.timezoneList[vue.editingRowNo].showLocation = document.getElementById("input2").value;
+            vue.editCancel();
+        },
+        editCancel: function(){
+            document.getElementById("tableContent").children[vue.editingRowNo].insertAdjacentHTML("afterend", 
+                    "<tr>"+tableLine(vue.editingRowNo,vue.timezoneList[vue.editingRowNo].ianaTimezone,vue.timezoneList[vue.editingRowNo].showLocation)+"</tr>");
+            document.getElementById("tableContent").children[vue.editingRowNo].remove();
+            vue.editedRowNos.push(vue.editingRowNo);
+            vue.myForceUpdate();
+            vue.editingRowNo = -1;
+        },
+        isInputEmpty: function(){
+            if(document.getElementById("input1").value == "" || document.getElementById("input2").value == ""){
+                vue.showEmptyMessage();
+                return true;
+            }
+            return false;
+        },
+        exportFile: function(){
+            let result = "";
+            result += '<!DOCTYPE html>\n';
+            result += '<html lang="ja">\n';
+            result += '<head>\n';
+            result += '<meta charset="UTF-8">\n';
+            result += '<meta name="author" value="yanjisheng">\n';
+            result += '<title>世界時計 - Made by yanjisheng, published under MIT license.</title>\n';
+            result += '<style>\n';
+            result += 'body{\n';
+            result += '    margin: 0px;\n';
+            result += '}\n';
+            result += '.out{\n';
+            result += '    position: relative;\n';
+            result += '    width: '+vue.totalWidth+'px;\n';
+            result += '    padding: 10px;\n';
+            result += '    margin: 10px;\n';
+            result += '    border: 5px solid;\n';
+            if(vue.roundCorner == "true"){
+                result += '    border-radius: 20px;\n';
+            }
+            result += '    text-align: center;\n';
+            if(vue.fontType != ""){
+                result += '    font-family: '+this.fontType+', sans-serif;\n';
+            }else{
+                result += '    font-family: sans-serif;\n';
+
+            }
+            result += '    background-color: '+this.backgroundColor+';\n';
+            result += '    border-color: '+this.borderColor+';\n';
+            result += '    color: '+this.textColor+';\n';
+            result += '    font-weight: '+this.fontWeight+';\n';
+            if(this.shadow == "true"){
+                result += '    -webkit-text-stroke: 0.3px #999999;\n';
+                result += '    text-shadow: 0px 0px 5px #666666;\n';
+                result += '    box-shadow: 0px 0px 10px #666666;\n';
+            }
+            result += '}\n';
+            result += '.line{\n';
+            result += '    position: relative;\n';
+            result += '    top: 0px;\n';
+            if(this.animation == "true"){
+                result += '    animation-name: appear;\n';
+                result += '    animation-duration: 0.5s;\n';
+                result += '    animation-fill-mode: both;\n';
+                result += '}\n';
+                result += '@keyframes appear{\n';
+                result += '    from {\n';
+                result += '        top: -10px;\n';
+                result += '        opacity: 0;\n';
+                result += '    }\n';
+                result += '    to {\n';
+                result += '        top: 0px;\n';
+                result += '        opacity: 1;\n';
+                result += '    }\n';
+            }
+            result += '}\n';
+            result += '.time{\n';
+            result += '    font-size: '+this.fontSizeTime+'px;\n';
+            result += '    animation-delay: 0.2s;\n';
+            result += '}\n';
+            result += '.date{\n';
+            result += '    font-size: '+this.fontSizeDate+'px;\n';
+            result += '    animation-delay: 0.4s;\n';
+            result += '}\n';
+            result += '.place{\n';
+            result += '    font-size: '+this.fontSizePlace+'px;\n';
+            result += '    animation-delay: 0s;\n';
+            result += '}\n';
+            result += '</style>\n';
+            result += '</head>\n';
+            result += '<body>\n';
+            result += '<div class="out" title="Made by yanjisheng">\n';
+            result += '<div id="place" class="place line" title="Made by yanjisheng">City, Country</div>\n';
+            result += '<div id="time" class="time line" title="Made by yanjisheng">18:00:00</div>\n';
+            result += '<div id="date" class="date line" title="Made by yanjisheng">2023/12/31</div>\n';
+            result += '</div>\n';
+            result += '<script>\n';
+            result += 'var timezoneList = [\n';
+            for(let i=0; i<this.timezoneList.length; i++){
+                result += '{showLocation: "'+this.timezoneList[i].showLocation+'", ianaTimezone: "'+this.timezoneList[i].ianaTimezone+'"}, \n';
+            }
+            result += '];\n';
+            result += 'var url = location.href;\n';
+            result += 'if(url.indexOf("?") < 0){\n';
+            result += 'location.replace(url+"?0");\n';
+            result += '}\n';
+            result += 'var serialNo = url.substring(url.indexOf("?")+1);\n';
+            result += 'var index = serialNo % timezoneList.length;\n';
+            result += 'var place = timezoneList[index].showLocation;\n';
+            result += 'var timezone = timezoneList[index].ianaTimezone;\n';
+            result += 'document.getElementById("place").innerText=place;\n';
+            result += 'function showDateTimePerSecond(){\n';
+            result += 'let now = new Date();\n';
+            result += 'let timeString = "無効なタイムゾーン";\n';
+            result += 'let dateString = "IANA基準タイムゾーンは正しくないと確認してください。";\n';
+            result += 'try{\n';
+            if(this.timeFormat == "timeFormat1"){
+                result += '    timeString = now.toLocaleTimeString("ja-JP", {timeZone: timezone, hour12: false, second: "2-digit", minute: "2-digit", hour: "2-digit"});\n';
+            }else if(this.timeFormat == "timeFormat2"){
+                result += '    timeString = now.toLocaleTimeString("ja-JP", {timeZone: timezone, hour12: false, minute: "2-digit", hour: "2-digit"});\n';
+            }else if(this.timeFormat == "timeFormat3"){
+                result += '    timeString = now.toLocaleTimeString("ja-JP", {timeZone: timezone, hour12: true, second: "2-digit", minute: "2-digit", hour: "2-digit"});\n';
+            }else if(this.timeFormat == "timeFormat4"){
+                result += '    timeString = now.toLocaleTimeString("ja-JP", {timeZone: timezone, hour12: true, minute: "2-digit", hour: "2-digit"});\n';
+            }
+            if(this.dateFormat == "dateFormat1"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, year: "numeric", month: "long", day: "numeric", weekday: "long"});\n';
+            }else if(this.dateFormat == "dateFormat2"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, year: "numeric", month: "long", day: "numeric", weekday: "short"});\n';
+            }else if(this.dateFormat == "dateFormat3"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, year: "numeric", month: "long", day: "numeric"});\n';
+            }else if(this.dateFormat == "dateFormat4"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, month: "long", day: "numeric", weekday: "short"});\n';
+            }else if(this.dateFormat == "dateFormat5"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, month: "long", day: "numeric"});\n';
+            }else if(this.dateFormat == "dateFormat6"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit", weekday: "short"});\n';
+            }else if(this.dateFormat == "dateFormat7"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, month: "2-digit", day: "2-digit"});\n';
+            }else if(this.dateFormat == "dateFormat8"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, calendar: "japanese", year: "numeric", month: "long", day: "numeric", weekday: "short"});\n';
+            }else if(this.dateFormat == "dateFormat9"){
+                result += '    dateString = now.toLocaleDateString("ja-JP", {timeZone: timezone, calendar: "japanese", year: "numeric", month: "long", day: "numeric"});\n';
+            }
+            result += '}catch{}\n';
+            result += 'document.getElementById("time").innerText=timeString;\n';
+            result += 'document.getElementById("date").innerText=dateString;\n';
+            result += '}\n';
+            result += 'showDateTimePerSecond();\n';
+            result += 'setInterval(showDateTimePerSecond,1000);\n';
+            result += 'setTimeout(function(){location.replace(url.substring(0,url.indexOf("?")+1)+(index+1))}, '+this.switchTime+' * 1000);\n';
+            result += '<\/script>\n';
+            result += '<\/body>\n';
+            result += '<\/html>\n';
+            console.log(result);
+            let blob = new Blob([result], {type: "text/plain;charset=UTF-8"});
+            let url = URL.createObjectURL(blob);
+            let link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "worldclock.html");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    }
+});
+</script>
+</body>
+</html>
