@@ -7,7 +7,10 @@
 これは世界有名なインターネットキャスターに向きます。
 
 ## 使い方
-`generator-ja.html` をご覧ください。
+
+[このサイト](https://yanjisheng.github.io/worldclock)をご覧ください。
+
+`generator-ja.html` をダウンロードしてもいいです。
 
 ## 許可証
 
