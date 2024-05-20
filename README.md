@@ -1,23 +1,21 @@
-This readme file is outdated.
+# World Clock Widget Generator
 
-# World Clock Widget
+[中文](chinese.md) [日本語](japanese.md)  
 
-[中文](chinese.md)
+This project is used to generate the World Clock Widget, which can show local times of different places one by one, and handle Daylight Saving Time (DST) automatically.
 
-This widget shows times and dates from all over the world. It uses timezone data embedded in web browsers with no extra dependents needed, and can automatically handle daylight saving time (DST).
+This widget is suitable for live-streamers whose audiences are from all over the world.
 
-This widget can be very useful for live streamers whose audiences are from all over the world.
+## How to Use
 
-## How to use
-
-Just download the file `worldclock.html`, and add it by OBS - Source - Browser, check "local file", and then choose the downloaded file. The procedure is the same as any other widgets.
-
-## Want to change something?
-
-To change color, appearance, time or date format, or behavior, just edit the file as you like. There are comments to help you. 
-
-If you want to add a new timezone, please notice that `ianaTimezone` means the standard timezones issued by International Assigned Numbers Authority (IANA). [Click here](https://data.iana.org/time-zones/tzdb/zone1970.tab) to find the newest full list of IANA timezones. If something wrong with a certian timezone, check the spellings first, then upgrade your browser.
+See the webpage <code>generator-en.html</code> to find how to use.
 
 ## License
 
-This project uses MIT license, which means you can use, edit, copy and distribute with no limitations.
+This project is issued under MIT license.
+
+## How to Contribute
+
+You can fork this project, and give pull requests to me. I need <code>generator-xx.html</code> in more languages, such as Spanish, French, German, and so on. However, I only understand Chinese, English and Japanese, so I need your help. 
+
+When you edit your <code>generator-xx.html</code> file, please change all the texts, especially tip messages that only appear when your mouse is hovering on something or when an error happened. If you're not sure, you can see the differences between <code>generator-en.html</code> and <code>generator-zh.html</code> to find texts you need to change. Additionally, take care of the date and time format in you language, which may be different from that in English.
