@@ -40,7 +40,7 @@ tbody tr:hover{
     width: 120px;
     padding: 0 12px;
 }
-.el-col-8>div.el-select{
+.el-col-8>div.el-select, .el-col-24>div.el-select{
     width: 70px;
 }
 .el-col-12>div.el-select{
@@ -75,6 +75,10 @@ p{
     display: inline-block;
     vertical-align: top;
     width: 560px;
+}
+#preview{
+    background-image: url(bg.png);
+    padding: 10px;
 }
 #saveButton{
     margin: 15px;
@@ -204,6 +208,14 @@ p{
                 </el-col>
             </el-row>
             <el-row>
+                <el-col :span="24">Transparent background: 
+                    <el-select size="mini" v-model="transparent">
+                        <el-option label="On" value="true"></el-option>
+                        <el-option label="Off" value="false"></el-option>
+                    </el-select>
+                </el-col>
+            </el-row>
+            <el-row>
                 <el-col :span="24">Location switch interval (seconds): 
                     <el-input-number size="mini" v-model="switchTime" :min="1" :max="100000"></el-input-number>
                 </el-col>
@@ -228,10 +240,12 @@ p{
     </el-tabs>
     <div id="previewBox">
         <h2>Preview</h2>
-        <div :style="previewStyle">
-            <div id="place" :style="locationStyle">{{locationPreview}}</div>
-            <div id="time" :style="timeStyle">{{timeFormatPreview}}</div>
-            <div id="date" :style="dateStyle">{{dateFormatPreview}}</div>
+        <div id="preview">
+            <div :style="previewStyle">
+                <div id="place" :style="locationStyle">{{locationPreview}}</div>
+                <div id="time" :style="timeStyle">{{timeFormatPreview}}</div>
+                <div id="date" :style="dateStyle">{{dateFormatPreview}}</div>
+            </div>
         </div>
         <el-button id="saveButton" @click="exportFile()">Save</el-button>
     </div>
@@ -261,8 +275,6 @@ var vue = new Vue({
         editedRowNos: [],
         predefineColors: ["#ffffff", "#ff7777", "#ff0000", "#770000", "#ffbb77", "#ff7700", "#773300", "#ffff77", "#ffff00", "#777700", "#77ff77", "#00ff00", "#007700", 
                 "#77ffff", "#00ffff", "#007777", "#7777ff", "#0000ff", "#000077", "#ff77ff", "#ff00ff", "#770077", "#bbbbbb", "#777777", "#333333", "#000000"],
-        shadowOptions:[],
-
         timezoneList: [
             {showLocation: "Auckland, New Zealand", ianaTimezone: "Pacific/Auckland"}, 
             {showLocation: "Sydney, Australia", ianaTimezone: "Australia/Sydney"}, 
@@ -311,6 +323,7 @@ var vue = new Vue({
         dateFormat: "dateFormat2",
         timeFormat: "timeFormat1",
         switchTime: 10,
+        transparent: "false",
     },
     computed: {
         totalWidth0: {
@@ -410,6 +423,12 @@ var vue = new Vue({
             return "";
         },
         previewStyle: function() {
+            if(this.transparent == "true"){
+                return "position: relative; width: "+this.totalWidth+"px; padding: 10px; margin: 15px; "+(this.roundCorner=="true"?"border-radius: 20px; ":"")
+                    +"text-align: center; font-family: "+(this.fontType==""?"":(this.fontType+","))+"sans-serif; "
+                    +"color: "+this.textColor+
+                    "; font-weight: "+this.fontWeight+"; "+(this.shadow=="true"?"-webkit-text-stroke: 0.3px #999999; text-shadow: 0px 0px 5px #666666;":"")
+            }
             return "position: relative; width: "+this.totalWidth+"px; padding: 10px; margin: 10px; border: 5px solid; "+(this.roundCorner=="true"?"border-radius: 20px; ":"")
                     +"text-align: center; font-family: "+(this.fontType==""?"":(this.fontType+","))+"sans-serif; "
                     +"background-color: "+this.backgroundColor+"; border-color: "+this.borderColor+"; color: "+this.textColor+
@@ -556,26 +575,33 @@ var vue = new Vue({
             result += '    position: relative;\n';
             result += '    width: '+vue.totalWidth+'px;\n';
             result += '    padding: 10px;\n';
-            result += '    margin: 10px;\n';
-            result += '    border: 5px solid;\n';
-            if(vue.roundCorner == "true"){
-                result += '    border-radius: 20px;\n';
-            }
             result += '    text-align: center;\n';
+            result += '    color: '+this.textColor+';\n';
+            result += '    font-weight: '+this.fontWeight+';\n';
             if(vue.fontType != ""){
                 result += '    font-family: '+this.fontType+', sans-serif;\n';
             }else{
                 result += '    font-family: sans-serif;\n';
-
             }
-            result += '    background-color: '+this.backgroundColor+';\n';
-            result += '    border-color: '+this.borderColor+';\n';
-            result += '    color: '+this.textColor+';\n';
-            result += '    font-weight: '+this.fontWeight+';\n';
-            if(this.shadow == "true"){
-                result += '    -webkit-text-stroke: 0.3px #999999;\n';
-                result += '    text-shadow: 0px 0px 5px #666666;\n';
-                result += '    box-shadow: 0px 0px 10px #666666;\n';
+            if(vue.transparent == "true"){
+                result += '    margin: 15px;\n';
+                if(this.shadow == "true"){
+                    result += '    -webkit-text-stroke: 0.3px #999999;\n';
+                    result += '    text-shadow: 0px 0px 5px #666666;\n';
+                }
+            }else{
+                result += '    margin: 10px;\n';
+                result += '    border: 5px solid;\n';
+                if(vue.roundCorner == "true"){
+                    result += '    border-radius: 20px;\n';
+                }
+                result += '    background-color: '+this.backgroundColor+';\n';
+                result += '    border-color: '+this.borderColor+';\n';
+                if(this.shadow == "true"){
+                    result += '    -webkit-text-stroke: 0.3px #999999;\n';
+                    result += '    text-shadow: 0px 0px 5px #666666;\n';
+                    result += '    box-shadow: 0px 0px 10px #666666;\n';
+                }
             }
             result += '}\n';
             result += '.line{\n';
