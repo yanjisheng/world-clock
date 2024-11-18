@@ -3,16 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <title>Redirecting...</title>
-<script>
-    var lang = navigator.language;
-    var l = lang.substring(0,2);
-    if(l=="zh"){
-        window.location.href="generator-zh.html";
-    }else if(l=="ja"){
-        window.location.href="generator-ja.html";
-    }else{
-        window.location.href="generator-en.html";
-    }
-</script>
 </head>
+<body>
+<h1 id="head">Redirecting based on your system language</h1>
+<script>
+var lang = navigator.language;
+var l = lang.substring(0,2);
+var loc = "generator-en.html";
+if(l == "zh"){
+    loc = "generator-zh.html";
+    document.getElementById("head").innerText = "正在按照您的系统语言跳转到对应版本";
+}else if(l == "ja"){
+    loc = "generator-ja.html";
+    document.getElementById("head").innerText = "システム言語でリダイレクト中";
+}
+setTimeout(function(){
+    window.location.href = loc;
+}, 1000);
+</script>
+</body>
 </html>

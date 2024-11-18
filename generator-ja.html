@@ -152,7 +152,7 @@ p{
             <el-row>
                 <el-col :span="8">背景の色：<el-color-picker size="mini" v-model="backgroundColor" :predefine="predefineColors"></el-color-picker></el-col>
                 <el-col :span="8">輪郭の色：<el-color-picker size="mini" v-model="borderColor" :predefine="predefineColors"></el-color-picker></el-col>
-                <el-col :span="8">フォントの色：<el-color-picker size="mini" v-model="textColor" :predefine="predefineColors"></el-color-picker></el-col>
+                <el-col :span="8">文字の色：<el-color-picker size="mini" v-model="textColor" :predefine="predefineColors"></el-color-picker></el-col>
             </el-row>
             <el-row>
                 <el-col :span="12">フォントウェート：
@@ -197,7 +197,7 @@ p{
                         <el-option label="いいえ" value="false"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="16">位置を切り替える間（秒）： 
+                <el-col :span="16">位置を切り替える間隔（秒）：
                     <el-input-number size="mini" v-model="switchTime" :min="1" :max="100000"></el-input-number>
                 </el-col>
             </el-row>
