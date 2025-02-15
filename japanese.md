@@ -8,7 +8,7 @@
 
 ## 使い方
 
-[このサイト](https://yanjisheng.github.io/worldclock)をご覧ください。
+[このサイト](https://yanjisheng.github.io/world-clock)をご覧ください。
 
 `generator-ja.html` をダウンロードしてもいいです。
 
