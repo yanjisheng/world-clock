@@ -18,6 +18,7 @@ table thead{
     height: 30px;
     background-color: #333333;
     color: #ffffff;
+    font-weight: bold;
 }
 table thead a{
     color: #ffffff;
@@ -236,7 +237,7 @@ p{
                 <div id="date" :style="dateStyle">{{dateFormatPreview}}</div>
             </div>
         </div>
-        <el-button id="saveButton" @click="exportFile()">保存</el-button>
+        <el-button id="saveButton" type="primary" @click="exportFile()">保存</el-button>
     </div>
     <el-dialog :title="editBoxTitle" :visible.sync="editBoxVisible">
         <el-row>
@@ -248,7 +249,7 @@ p{
             </el-col>
         </el-row>
         <span slot="footer" class="dialog-footer">
-            <el-button type="success" icon="el-icon-check" size="mini" @click="editDone2()" title="确认"></el-button>
+            <el-button type="success" icon="el-icon-check" size="mini" @click="editDone2()" title="OK"></el-button>
         </span>
     </el-dialog>
 </div>
