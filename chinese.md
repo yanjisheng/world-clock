@@ -8,7 +8,7 @@
 
 ## 使用方法
 
-访问[此网站](https://yanjisheng.github.io/worldclock)，按提示操作即可。
+访问[此网站](https://yanjisheng.github.io/world-clock)，按提示操作即可。
 
 或者，你也可以下载 `generator-zh.html` 到本地，然后用浏览器打开。
 
