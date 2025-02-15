@@ -8,7 +8,7 @@ This widget is suitable for live-streamers whose audiences are from all over the
 
 ## How to Use
 
-Go to [this site](https://yanjisheng.github.io/worldclock), and follow the instructions.
+Go to [this site](https://yanjisheng.github.io/world-clock), and follow the instructions.
 
 Alternatively, you can also download the file <code>generator-en.html</code>, and open it in a web browser to use.
 
