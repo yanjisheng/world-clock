@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="author" value="yanjisheng">
 <title>世界时钟生成器</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/element-ui/2.15.14/theme-chalk/index.min.css" integrity="sha512-cTraKrkPq3y0mm73JlMTDOugmX/NwJ/WCitAFxMdS/l+P/qMIUzGkbg3oCx9e8suEU2rurxP+5aIidz0ZjKdpw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.14/vue.min.js" integrity="sha512-BAMfk70VjqBkBIyo9UTRLl3TBJ3M0c6uyy2VMUrq370bWs7kchLNN9j1WiJQus9JAJVqcriIUX859JOm12LWtw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -27,6 +28,9 @@ tbody tr:hover{
 .el-input__inner{
     padding: 3px;
 }
+.el-autocomplete-suggestion{
+    width: inherit !important;
+}
 .el-tabs{
     width: 605px;
     display: inline-block;
@@ -49,6 +53,9 @@ tbody tr:hover{
 .el-col-16>div.el-input{
     width: 250px;
 }
+.el-col-12>div.el-input, .el-col-12>div.el-autocomplete{
+    width: 150px;
+}
 .el-col>div.el-input-number{
     width: 120px;
 }
@@ -57,6 +64,10 @@ tbody tr:hover{
 }
 .el-tab-pane p, .el-tab-pane h2{
     text-align: justify;
+}
+.el-dialog{
+    width: 50%;
+    min-width: 600px;
 }
 h2{
     margin: 10px;
@@ -96,8 +107,8 @@ p{
                         <td>{{t.showLocation}}</td>
                         <td>
                             <el-button-group>
-                                <el-button type="warning" icon="el-icon-edit" circle size="mini" title="编辑" @click="editMe(index)"></el-button>
-                                <el-button type="success" icon="el-icon-plus" circle size="mini" title="添加" @click="addMe(index)"></el-button>
+                                <el-button type="warning" icon="el-icon-edit" circle size="mini" title="编辑" @click="editMe2(index)"></el-button>
+                                <el-button type="success" icon="el-icon-plus" circle size="mini" title="添加" @click="addMe2(index)"></el-button>
                                 <el-button type="primary" icon="el-icon-top" circle size="mini" title="上移" @click="moveUp(index)"></el-button>
                                 <el-button type="primary" icon="el-icon-bottom" circle size="mini" title="下移" @click="moveDown(index)"></el-button>
                                 <el-button type="danger" icon="el-icon-delete" circle size="mini" title="删除" @click="deleteMe(index)"></el-button>
@@ -220,30 +231,25 @@ p{
         </div>
         <el-button id="saveButton" @click="exportFile()">保存</el-button>
     </div>
+    <el-dialog :title="editBoxTitle" :visible.sync="editBoxVisible">
+        <el-row>
+            <el-col :span="12">
+                IANA标准时区： <el-autocomplete v-model="input1" size="mini" :fetch-suggestions="queryTimezone"></el-autocomplete>
+            </el-col>
+            <el-col :span="12">
+                显示地名： <el-input v-model="input2" size="mini"></el-input>
+            </el-col>
+        </el-row>
+        <span slot="footer" class="dialog-footer">
+            <el-button type="success" icon="el-icon-check" size="mini" @click="editDone2()" title="确认"></el-button>
+        </span>
+    </el-dialog>
 </div>
 <script>
-function editLine(option, text1, text2){
-    return '<tr><td></td><td><div class="el-input el-input--mini">'
-            +'<input class="el-input__inner" value="'+text1+'" type="text" autocomplete="off" id="input1"></div></td>'
-            +'<td><div class="el-input el-input--mini">'
-            +'<input class="el-input__inner" value="'+text2+'" type="text" autocomplete="off" id="input2"></div></td>'
-            +'<td><div class="el-button-group">'
-            +'<button class="el-button el-button--success el-button--mini is-circle" type="button" title="确认" onclick="vue.'+option+'Done()"><i class="el-icon-check"></i></button>'
-            +'<button class="el-button el-button--danger el-button--mini is-circle" type="button" title="取消" onclick="vue.'+option+'Cancel()"><i class="el-icon-close"></i></button></div></td></tr>';
-}
-function tableLine(rowNo, text1, text2){
-    return '<td>'+rowNo+'</td><td>'+text1+'</td><td>'+text2+'</td><td><div class="el-button-group">'
-            +'<button class="el-button el-button--warning el-button--mini is-circle" type="button" title="编辑" onclick="vue.editMe('+rowNo+')"><i class="el-icon-edit"></i></button>'
-            +'<button class="el-button el-button--success el-button--mini is-circle" type="button" title="添加" onclick="vue.addMe('+rowNo+')"><i class="el-icon-plus"></i></button>'
-            +'<button class="el-button el-button--primary el-button--mini is-circle" type="button" title="上移" onclick="vue.moveUp('+rowNo+')"><i class="el-icon-top"></i></button>'
-            +'<button class="el-button el-button--primary el-button--mini is-circle" type="button" title="下移" onclick="vue.moveDown('+rowNo+')"><i class="el-icon-bottom"></i></button>'
-            +'<button class="el-button el-button--danger el-button--mini is-circle" type="button" title="删除" onclick="vue.deleteMe('+rowNo+')"><i class="el-icon-delete"></i></button></div></td>';
-}
 var vue = new Vue({
     el: "#vue",
     data: {
         editingRowNo: -1,
-        editedRowNos: [],
         predefineColors: ["#ffffff", "#ff7777", "#ff0000", "#770000", "#ffbb77", "#ff7700", "#773300", "#ffff77", "#ffff00", "#777700", "#77ff77", "#00ff00", "#007700", 
                 "#77ffff", "#00ffff", "#007777", "#7777ff", "#0000ff", "#000077", "#ff77ff", "#ff00ff", "#770077", "#bbbbbb", "#777777", "#333333", "#000000"],
         timezoneList: [
@@ -277,6 +283,11 @@ var vue = new Vue({
         timeFormat: "timeFormat21",
         switchTime: 10,
         transparent: "false",
+        ianaTimezoneList: [],
+        input1: "",
+        input2: "",
+        editMode: "edit",
+        editBoxVisible: false,
     },
     computed: {
         totalWidth0: {
@@ -364,27 +375,26 @@ var vue = new Vue({
         dateStyle: function() {
             return "font-size: "+ this.fontSizeDate + "px";
         },
+        editBoxTitle: function() {
+            if(this.editMode == "add"){
+                return "添加时区";
+            }else if(this.editMode == "edit"){
+                return "编辑时区";
+            }
+            return "";
+        },
     },
     methods: {
-        showEditingMessage: function(){
-            vue.$message({type:"error", message:"请先完成当前的编辑，再进行新的操作。"});
-        },
         showEmptyMessage: function(){
-            vue.$message({type:"warning", message:"空白输入被忽略了。"});
+            vue.$message({type:"error", message:"请勿输入空白内容。"});
+        },
+        deleteErrorMessage: function(){
+            vue.$message({type:"error", message:"请勿删除唯一的时区。"});
         },
         myForceUpdate: function(){
             vue.$forceUpdate();
-            for(let i=0; i<vue.editedRowNos.length; i++){
-                let t=vue.editedRowNos[i];
-                document.getElementById("tableContent").children[t].innerHTML
-                        =tableLine(t,vue.timezoneList[t].ianaTimezone,vue.timezoneList[t].showLocation);
-            }
         },
         moveUp: function(rowNo){
-            if(vue.editingRowNo != -1){
-                vue.showEditingMessage();
-                return;
-            }
             if(rowNo>0){
                 let t1 = vue.timezoneList[rowNo].ianaTimezone;
                 let t2 = vue.timezoneList[rowNo].showLocation;
@@ -396,10 +406,6 @@ var vue = new Vue({
             vue.myForceUpdate();
         },
         moveDown: function(rowNo){
-            if(vue.editingRowNo != -1){
-                vue.showEditingMessage();
-                return;
-            }
             if(rowNo<vue.timezoneList.length-1){
                 let t1 = vue.timezoneList[rowNo].ianaTimezone;
                 let t2 = vue.timezoneList[rowNo].showLocation;
@@ -411,8 +417,8 @@ var vue = new Vue({
             vue.myForceUpdate();
         },
         deleteMe: function(rowNo){
-            if(vue.editingRowNo != -1){
-                vue.showEditingMessage();
+            if(vue.timezoneList.length == 1){
+                vue.deleteErrorMessage();
                 return;
             }
             for(let i=rowNo; i<vue.timezoneList.length; i++){
@@ -421,61 +427,41 @@ var vue = new Vue({
             vue.timezoneList.pop();
             vue.myForceUpdate();
         },
-        editMe: function(rowNo){
-            if(vue.editingRowNo != -1){
-                vue.showEditingMessage();
-                return;
-            }
-            document.getElementById("tableContent").children[rowNo].insertAdjacentHTML("afterend", 
-                    editLine("edit",vue.timezoneList[rowNo].ianaTimezone,vue.timezoneList[rowNo].showLocation));
-            document.getElementById("tableContent").children[rowNo].remove();
-            vue.editingRowNo = rowNo;
-        },
-        addMe: function(rowNo){
-            if(vue.editingRowNo != -1){
-                vue.showEditingMessage();
-                return;
-            }
-            document.getElementById("tableContent").children[rowNo].insertAdjacentHTML("afterend", editLine("add","",""));
+        addMe2: function(rowNo){
+            vue.input1 = "";
+            vue.input2 = "";
+            vue.editMode = "add";
             vue.editingRowNo = rowNo + 1;
+            vue.editBoxVisible = true;
         },
-        addDone: function(){
-            if(vue.isInputEmpty()){
-                vue.addCancel();
-                return;
-            }
-            vue.timezoneList.push({showLocation: "", ianaTimezone: ""});
-            for(let i=vue.timezoneList.length-1; i>vue.editingRowNo;i--){
-                vue.timezoneList[i] = vue.timezoneList[i-1];
-            }
-            vue.timezoneList[vue.editingRowNo] = {ianaTimezone: document.getElementById("input1").value, showLocation: document.getElementById("input2").value};
-            vue.addCancel();
+        editMe2: function(rowNo){
+            vue.input1 = vue.timezoneList[rowNo].ianaTimezone;
+            vue.input2 = vue.timezoneList[rowNo].showLocation;
+            vue.editMode = "edit";
+            vue.editingRowNo = rowNo;
+            vue.editBoxVisible = true;
         },
-        addCancel: function(){
-            document.getElementById("tableContent").children[vue.editingRowNo].remove();
-            vue.myForceUpdate();
-            vue.editingRowNo = -1;
-        },
-        editDone: function(){
-            if(vue.isInputEmpty()){
-                vue.editCancel();
-                return;
-            }
-            vue.timezoneList[vue.editingRowNo].ianaTimezone = document.getElementById("input1").value;
-            vue.timezoneList[vue.editingRowNo].showLocation = document.getElementById("input2").value;
-            vue.editCancel();
-        },
-        editCancel: function(){
-            document.getElementById("tableContent").children[vue.editingRowNo].insertAdjacentHTML("afterend", 
-                    "<tr>"+tableLine(vue.editingRowNo,vue.timezoneList[vue.editingRowNo].ianaTimezone,vue.timezoneList[vue.editingRowNo].showLocation)+"</tr>");
-            document.getElementById("tableContent").children[vue.editingRowNo].remove();
-            vue.editedRowNos.push(vue.editingRowNo);
-            vue.myForceUpdate();
-            vue.editingRowNo = -1;
-        },
-        isInputEmpty: function(){
-            if(document.getElementById("input1").value == "" || document.getElementById("input2").value == ""){
+        editDone2: function(){
+            if(vue.isInputEmpty2()){
                 vue.showEmptyMessage();
+            }else{
+                if(vue.editMode == "add"){
+                    vue.timezoneList.push({showLocation: "", ianaTimezone: ""});
+                    for(let i=vue.timezoneList.length-1; i>vue.editingRowNo; i--){
+                        vue.timezoneList[i] = vue.timezoneList[i-1];
+                    }
+                    vue.timezoneList[vue.editingRowNo] = {ianaTimezone: vue.input1, showLocation: vue.input2};
+                }else if(vue.editMode == "edit"){
+                    vue.timezoneList[vue.editingRowNo].ianaTimezone = vue.input1;
+                    vue.timezoneList[vue.editingRowNo].showLocation = vue.input2;
+                }
+                vue.editBoxVisible = false;
+                vue.myForceUpdate();
+                vue.editingRowNo = -1;
+            }
+        },
+        isInputEmpty2: function(){
+            if(vue.input1 == "" || vue.input2 == ""){
                 return true;
             }
             return false;
@@ -487,7 +473,7 @@ var vue = new Vue({
             result += '<head>\n';
             result += '<meta charset="UTF-8">\n';
             result += '<meta name="author" value="yanjisheng">\n';
-            result += '<title>世界时钟小组件 - Made by yanjisheng, published under MIT license.</title>\n';
+            result += '<title>世界时钟小组件</title>\n';
             result += '<style>\n';
             result += 'body{\n';
             result += '    margin: 0px;\n';
@@ -626,7 +612,39 @@ var vue = new Vue({
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+        },
+        queryTimezone: function(qs, cb){
+            let list = this.ianaTimezoneList;
+            let cbs = []
+            let exactMatch = [];
+            if(qs.length > 0){
+                for(let t in list){
+                    let i = list[t].toLowerCase().lastIndexOf(qs.toLowerCase());
+                    if(i > -1 && list[t].toLowerCase().charAt(i-1) == '/'){
+                        cbs.push({value: list[t]});
+                        exactMatch.push(t);
+                    }
+                }
+            }
+            for(let t in list){
+                if(list[t].toLowerCase().indexOf(qs.toLowerCase()) > -1){
+                    let j;
+                    for(j=0; j<exactMatch.length; j++){
+                        if(t == exactMatch[j]){
+                            break;
+                        }
+                    }
+                    if(j<exactMatch.length){
+                        continue;
+                    }
+                    cbs.push({value: list[t]});
+                }
+            }
+            cb(cbs);
         }
+    },
+    mounted() {
+        this.ianaTimezoneList = Intl.supportedValuesOf('timeZone');
     }
 });
 </script>
