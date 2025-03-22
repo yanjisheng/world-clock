@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
 <meta charset="UTF-8">
 <meta name="author" value="yanjisheng">
@@ -759,6 +759,7 @@ var vue = new Vue({
         this.ianaTimezoneList = Intl.supportedValuesOf('timeZone');
     }
 });
+document.getElementsByClassName("el-dialog__headerbtn")[0].setAttribute("title", "Cancel");
 </script>
 </body>
 </html>

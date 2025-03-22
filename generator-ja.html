@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" translate="no">
 <head>
 <meta charset="UTF-8">
 <meta name="author" value="yanjisheng">
@@ -164,11 +164,11 @@ p{
                 <el-col :span="8">文字の色：<el-color-picker size="mini" v-model="textColor" :predefine="predefineColors"></el-color-picker></el-col>
             </el-row>
             <el-row>
-                <el-col :span="12">フォントウェート：
+                <el-col :span="12">フォントウェイト：
                     <el-select size="mini" v-model="fontWeight">
-                        <el-option label="Bold" value="bold"></el-option>
-                        <el-option label="Normal" value="normal"></el-option>
-                        <el-option label="Light" value="lighter"></el-option>
+                        <el-option label="太(Bold)" value="bold"></el-option>
+                        <el-option label="中(Normal)" value="normal"></el-option>
+                        <el-option label="細(Light)" value="lighter"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="12">フォント：
@@ -667,6 +667,7 @@ var vue = new Vue({
         this.ianaTimezoneList = Intl.supportedValuesOf('timeZone');
     }
 });
+document.getElementsByClassName("el-dialog__headerbtn")[0].setAttribute("title", "キャンセル");
 </script>
 </body>
 </html>
