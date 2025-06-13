@@ -1,0 +1,137 @@
+h1, h2, h3{
+    text-align: center;
+}
+h1{
+    font-size: 26px;
+    margin: 15px 10px;
+}
+h2{
+    font-size: 22px;
+    margin: 15px 10px;
+}
+h3{
+    font-size: 18px;
+    margin: 10px;
+}
+ul{
+    display: inline-block;
+    padding: 0px;
+    width: 100%;
+    margin: 0px;
+}
+ul.navigator{
+    background-color: #003399;
+}
+ul.products{
+    background-color: #97c6ea;
+}
+ul>li{
+    display: inline-block;
+    font-size: 16px;
+}
+ul.navigator>li{
+    padding: 20px;
+    font-weight: bold;
+}
+ul.products>li{
+    padding: 10px;
+}
+ul>li>a{
+    color: #ffffff;
+    text-decoration: none;
+}
+ul>li>a:hover{
+    color: #ffff00;
+}
+ul.products>li>a{
+    color: #000066;
+}
+ul.products>li>a:hover{
+    color: #0000ff;
+}
+div.product{
+    display: inline-block;
+    width: 293px;
+    min-height: 105px;
+    margin: 10px 10px;
+    padding: 10px;
+    background-color: #ccccee;
+    border-radius: 10px;
+    vertical-align: top;
+}
+div.product img{
+    height: 105px;
+    width: 105px;
+    display: inline;
+    object-fit: contain;
+}
+div.product div{
+    font-size: 16px;
+    width: 175px;
+    max-height: 100%;
+    display: inline-block;
+    vertical-align: top;
+    padding-left: 10px;
+    line-height: 21px;
+}
+div.product a:hover{
+    color: #0000ff;
+}
+div.top{
+    font-size: 16px;
+    line-height: 20px;
+    position: fixed;
+    right: 10px;
+    bottom: 93px;
+    border: 1px solid #000066;
+    padding: 0px 4px;
+    background-color: #ffffff;
+}
+div.top a{
+    text-decoration: none;
+}
+p{
+    text-indent: 2em;
+    font-size: 16px;
+    line-height: 22px;
+    white-space: pre-wrap;
+    text-align: justify;
+    margin: 10px;
+}
+a{
+    color: #000066
+}
+input{
+    font-family: inherit;
+}
+input[type=text]{
+    max-width: 100px;
+    width: 90%;
+    height: 18px;
+    border: 0px;
+    padding: 1px 4px;
+    margin: 0;
+    vertical-align: top;
+}
+input[type=submit]{
+    height: 20px;
+    border: 0px;
+    padding: 1px 4px;
+    margin: 0;
+    vertical-align: top;
+}
+img{
+    max-width: 100%;
+    max-height: 350px;
+}
+body>img{
+    display: block;
+    margin: auto;
+}
+body{
+    max-width: 1000px;
+    margin: auto;
+    font-size: 0;
+    word-break: break-word;
+    font-family: sans-serif;
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" value="yanjisheng">
+<title>上海好耐电子科技有限公司 - 新闻动态</title>
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<h1>上海好耐电子科技有限公司</h1>
+<ul class="navigator">
+    <li><a href="index.html">首页</a></li>
+    <li><a href="introduction.html">公司介绍</a></li>
+    <li><a href="products.html">产品信息</a></li>
+    <li><a href="news.html">新闻动态</a></li>
+    <li><a href="contact.html">联系方式</a></li>
+    <li><input type="text" id="keyword" placeholder="请输入搜索词"><input type="submit" id=search value="搜索"></li>
+    <li><a href="javascript:language()">English</a></li>
+</ul>
+<h3>测试页面</h3>
+<p>您的页面宽度：<span id="page_width"></span>px</p>
+<p>您的窗口宽度：<span id="window_width"></span>px</p>
+<h3>Copyright 2025 上海好耐电子科技有限公司 版权所有</h3>
+<h3><a href="https://beian.miit.gov.cn" target="_blank">沪ICP备08024273号-3</a></h3>
+<script src="common.js"></script>
+<script>
+var clientWidth = document.body.clientWidth;
+var windowWidth = window.innerWidth;
+document.getElementById("page_width").innerText = clientWidth;
+document.getElementById("window_width").innerText = windowWidth;
+</script>
+</body>
+</html>
